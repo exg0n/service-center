@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Тесты - Сервисный Центр</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f0eb 0%, #e8dfd8 100%);
+            padding: 40px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(102, 85, 68, 0.15);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6b4c3a 0%, #4a3224 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .summary {
+            display: flex;
+            gap: 20px;
+            padding: 20px 30px;
+            background: #f8f5f2;
+            border-bottom: 1px solid #e0d6cf;
+        }
+
+        .summary-card {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .summary-card .number {
+            font-size: 36px;
+            font-weight: bold;
+        }
+
+        .summary-card .label {
+            color: #6b4c3a;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .summary-card.passed .number {
+            color: #10b981;
+        }
+
+        .summary-card.failed .number {
+            color: #ef4444;
+        }
+
+        .summary-card.total .number {
+            color: #6b4c3a;
+        }
+
+        .tests-container {
+            padding: 30px;
+        }
+
+        .test-group {
+            margin-bottom: 30px;
+            border: 1px solid #e0d6cf;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .group-title {
+            background: #f8f5f2;
+            padding: 15px 20px;
+            font-weight: 600;
+            color: #4a3224;
+            border-bottom: 1px solid #e0d6cf;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .group-title:hover {
+            background: #f0eae4;
+        }
+
+        .group-stats {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 20px;
+            background: white;
+        }
+
+        .test-item {
+            padding: 12px 20px;
+            border-bottom: 1px solid #f0eae4;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .test-item:last-child {
+            border-bottom: none;
+        }
+
+        .test-status {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .test-status.passed {
+            background: #d1fae5;
+            color: #10b981;
+        }
+
+        .test-status.failed {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .test-name {
+            flex: 1;
+            color: #4a3224;
+        }
+
+        .test-message {
+            color: #ef4444;
+            font-size: 12px;
+            margin-left: auto;
+            max-width: 400px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: #e0d6cf;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #10b981;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .footer {
+            padding: 20px 30px;
+            background: #f8f5f2;
+            text-align: center;
+            border-top: 1px solid #e0d6cf;
+            font-size: 12px;
+            color: #8b735f;
+        }
+
+        button {
+            background: #6b4c3a;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 0 5px;
+        }
+
+        button:hover {
+            background: #4a3224;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Unit Тесты Сервисный Центр</h1>
+            <p>Тестирование бизнес-логики без подключения к базе данных</p>
+        </div>
+
+        <div class="summary" id="summary">
+            <div class="summary-card total">
+                <div class="number" id="totalCount">0</div>
+                <div class="label">Всего тестов</div>
+            </div>
+            <div class="summary-card passed">
+                <div class="number" id="passedCount">0</div>
+                <div class="label">✅ Пройдено</div>
+            </div>
+            <div class="summary-card failed">
+                <div class="number" id="failedCount">0</div>
+                <div class="label">❌ Не пройдено</div>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="tests-container" id="testsContainer"></div>
+
+        <div class="footer">
+            <button onclick="runAllTests()">▶ Запустить все тесты</button>
+            <button onclick="location.reload()">🔄 Сбросить</button>
+            <p style="margin-top: 15px;">Дата запуска: <span id="runDate"></span></p>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // ТЕСТИРУЕМЫЕ ФУНКЦИИ (копия логики из проекта)
+        // ============================================================
+
+        // Функции из server.js
+        const generateOrderNumberFormat = (year, count) => {
+            const nextNumber = (count + 1).toString().padStart(4, '0');
+            return `ORD-${year}-${nextNumber}`;
+        };
+
+        const VALID_STATUSES = ['pending', 'in-progress', 'completed', 'cancelled'];
+        const isValidStatus = (status) => VALID_STATUSES.includes(status);
+
+        const getStatusText = (status) => {
+            const map = { 'pending': 'Ожидает', 'in-progress': 'В работе', 'completed': 'Выполнен', 'cancelled': 'Отменен' };
+            return map[status] || 'Неизвестно';
+        };
+
+        // Функции валидации
+        const validateOrderForm = (orderData) => {
+            const errors = [];
+            if (!orderData.service_id || orderData.service_id <= 0) errors.push('Выберите услугу');
+            if (!orderData.device_type || !orderData.device_type.trim()) errors.push('Введите тип устройства');
+            if (!orderData.problem_description || !orderData.problem_description.trim()) errors.push('Опишите проблему');
+            return { isValid: errors.length === 0, errors };
+        };
+
+        const validateRegistration = (userData) => {
+            const errors = {};
+            if (!userData.first_name || userData.first_name.length < 2) errors.first_name = 'Имя должно содержать не менее 2 символов';
+            if (!userData.last_name || userData.last_name.length < 2) errors.last_name = 'Фамилия должна содержать не менее 2 символов';
+            if (!userData.email || !/\S+@\S+\.\S+/.test(userData.email)) errors.email = 'Введите корректный email';
+            if (!userData.password || userData.password.length < 6) errors.password = 'Пароль должен содержать не менее 6 символов';
+            if (userData.password !== userData.password_confirmation) errors.password_confirmation = 'Пароли не совпадают';
+            return { isValid: Object.keys(errors).length === 0, errors };
+        };
+
+        const formatPrice = (price) => {
+            if (typeof price !== 'number' || isNaN(price)) return '0.00 ₽';
+            return `${price.toFixed(2)} ₽`;
+        };
+
+        const getRoleText = (role) => {
+            const roles = { 0: 'Администратор', 1: 'Менеджер', 2: 'Пользователь' };
+            return roles[role] || 'Неизвестно';
+        };
+
+        const formatDate = (dateString) => {
+            if (!dateString) return null;
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return null;
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}.${month}.${year}`;
+            } catch { return null; }
+        };
+
+        // ============================================================
+        // ТЕСТЫ
+        // ============================================================
+
+        const tests = [
+            // Группа 1: Генерация номера заказа
+            {
+                group: 'Генерация номера заказа', name: 'TC-01: Формат ORD-ГГГГ-XXXX', fn: () => {
+                    const result = generateOrderNumberFormat(2026, 5);
+                    return result === 'ORD-2026-0006' && /^ORD-\d{4}-\d{4}$/.test(result);
+                }
+            },
+            {
+                group: 'Генерация номера заказа', name: 'TC-02: Правильное увеличение счетчика', fn: () => {
+                    return generateOrderNumberFormat(2026, 0) === 'ORD-2026-0001' &&
+                        generateOrderNumberFormat(2026, 9) === 'ORD-2026-0010' &&
+                        generateOrderNumberFormat(2026, 99) === 'ORD-2026-0100';
+                }
+            },
+            {
+                group: 'Генерация номера заказа', name: 'TC-03: Корректная обработка разных годов', fn: () => {
+                    return generateOrderNumberFormat(2025, 10) === 'ORD-2025-0011';
+                }
+            },
+
+            // Группа 2: Валидация статуса
+            {
+                group: 'Валидация статуса заказа', name: 'TC-04: Прием корректных статусов', fn: () => {
+                    return isValidStatus('pending') && isValidStatus('in-progress') &&
+                        isValidStatus('completed') && isValidStatus('cancelled');
+                }
+            },
+            {
+                group: 'Валидация статуса заказа', name: 'TC-05: Отклонение некорректных статусов', fn: () => {
+                    return !isValidStatus('unknown') && !isValidStatus('') && !isValidStatus('deleted');
+                }
+            },
+            {
+                group: 'Валидация статуса заказа', name: 'TC-06: Преобразование статуса в текст', fn: () => {
+                    return getStatusText('pending') === 'Ожидает' &&
+                        getStatusText('completed') === 'Выполнен' &&
+                        getStatusText('unknown') === 'Неизвестно';
+                }
+            },
+
+            // Группа 3: Валидация заказа
+            {
+                group: 'Валидация формы заказа', name: 'TC-07: Корректные данные заказа', fn: () => {
+                    const result = validateOrderForm({ service_id: 1, device_type: 'Смартфон', problem_description: 'Не работает' });
+                    return result.isValid === true && result.errors.length === 0;
+                }
+            },
+            {
+                group: 'Валидация формы заказа', name: 'TC-08: Отклонение без услуги', fn: () => {
+                    const result = validateOrderForm({ service_id: null, device_type: 'Смартфон', problem_description: 'Не работает' });
+                    return result.isValid === false && result.errors.includes('Выберите услугу');
+                }
+            },
+            {
+                group: 'Валидация формы заказа', name: 'TC-09: Отклонение без типа устройства', fn: () => {
+                    const result = validateOrderForm({ service_id: 1, device_type: '', problem_description: 'Не работает' });
+                    return result.isValid === false && result.errors.includes('Введите тип устройства');
+                }
+            },
+            {
+                group: 'Валидация формы заказа', name: 'TC-10: Отклонение без описания проблемы', fn: () => {
+                    const result = validateOrderForm({ service_id: 1, device_type: 'Смартфон', problem_description: '' });
+                    return result.isValid === false && result.errors.includes('Опишите проблему');
+                }
+            },
+
+            // Группа 4: Валидация регистрации
+            {
+                group: 'Валидация регистрации', name: 'TC-11: Корректные данные регистрации', fn: () => {
+                    const result = validateRegistration({ first_name: 'Иван', last_name: 'Петров', email: 'ivan@test.com', password: '123456', password_confirmation: '123456' });
+                    return result.isValid === true;
+                }
+            },
+            {
+                group: 'Валидация регистрации', name: 'TC-12: Отклонение короткого имени', fn: () => {
+                    const result = validateRegistration({ first_name: 'И', last_name: 'Петров', email: 'ivan@test.com', password: '123456', password_confirmation: '123456' });
+                    return result.isValid === false && result.errors.first_name;
+                }
+            },
+            {
+                group: 'Валидация регистрации', name: 'TC-13: Отклонение несовпадающих паролей', fn: () => {
+                    const result = validateRegistration({ first_name: 'Иван', last_name: 'Петров', email: 'ivan@test.com', password: '123456', password_confirmation: '654321' });
+                    return result.isValid === false && result.errors.password_confirmation;
+                }
+            },
+
+            // Группа 5: Форматирование цены
+            {
+                group: 'Форматирование цены', name: 'TC-14: Корректное форматирование цены', fn: () => {
+                    return formatPrice(1500) === '1500.00 ₽' && formatPrice(99.9) === '99.90 ₽';
+                }
+            },
+            {
+                group: 'Форматирование цены', name: 'TC-15: Обработка некорректных цен', fn: () => {
+                    return formatPrice(null) === '0.00 ₽' && formatPrice(NaN) === '0.00 ₽';
+                }
+            },
+
+            // Группа 6: Роли пользователей
+            { group: 'Роли пользователей', name: 'TC-16: Преобразование роли 0', fn: () => getRoleText(0) === 'Администратор' },
+            { group: 'Роли пользователей', name: 'TC-17: Преобразование роли 1', fn: () => getRoleText(1) === 'Менеджер' },
+            { group: 'Роли пользователей', name: 'TC-18: Преобразование роли 2', fn: () => getRoleText(2) === 'Пользователь' },
+            { group: 'Роли пользователей', name: 'TC-19: Неизвестная роль', fn: () => getRoleText(99) === 'Неизвестно' },
+
+            // Группа 7: Форматирование дат
+            { group: 'Форматирование дат', name: 'TC-20: Формат ДД.ММ.ГГГГ', fn: () => formatDate('2026-03-15') === '15.03.2026' },
+            { group: 'Форматирование дат', name: 'TC-21: Null для пустой даты', fn: () => formatDate(null) === null },
+            { group: 'Форматирование дат', name: 'TC-22: Null для некорректной даты', fn: () => formatDate('invalid') === null }
+        ];
+
+        // ============================================================
+        // ЗАПУСК ТЕСТОВ
+        // ============================================================
+
+        let testResults = [];
+
+        function runAllTests() {
+            testResults = [];
+            const groups = {};
+
+            // Запускаем все тесты
+            for (let test of tests) {
+                try {
+                    const passed = test.fn();
+                    testResults.push({
+                        group: test.group,
+                        name: test.name,
+                        passed: passed,
+                        message: passed ? '' : 'Тест не пройден'
+                    });
+                } catch (e) {
+                    testResults.push({
+                        group: test.group,
+                        name: test.name,
+                        passed: false,
+                        message: e.message
+                    });
+                }
+            }
+
+            // Подсчет статистики
+            const total = testResults.length;
+            const passed = testResults.filter(r => r.passed).length;
+            const failed = total - passed;
+
+            // Обновляем summary
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('passedCount').textContent = passed;
+            document.getElementById('failedCount').textContent = failed;
+            document.getElementById('progressFill').style.width = `${(passed / total) * 100}%`;
+            document.getElementById('runDate').textContent = new Date().toLocaleString();
+
+            // Отображаем результаты
+            renderResults();
+        }
+
+        function renderResults() {
+            const container = document.getElementById('testsContainer');
+            const groups = {};
+
+            // Группируем результаты
+            for (let result of testResults) {
+                if (!groups[result.group]) groups[result.group] = [];
+                groups[result.group].push(result);
+            }
+
+            // Рендерим
+            container.innerHTML = '';
+            for (let [groupName, groupTests] of Object.entries(groups)) {
+                const groupPassed = groupTests.filter(t => t.passed).length;
+                const groupTotal = groupTests.length;
+
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'test-group';
+                groupDiv.innerHTML = `
+                    <div class="group-title" onclick="toggleGroup(this)">
+                        <span>📋 ${groupName}</span>
+                        <span class="group-stats">${groupPassed}/${groupTotal} пройдено</span>
+                    </div>
+                    <div class="group-content">
+                        ${groupTests.map(test => `
+                            <div class="test-item">
+                                <div class="test-status ${test.passed ? 'passed' : 'failed'}">
+                                    ${test.passed ? '✓' : '✗'}
+                                </div>
+                                <div class="test-name">${test.name}</div>
+                                ${test.message ? `<div class="test-message">${test.message}</div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(groupDiv);
+            }
+        }
+
+        function toggleGroup(element) {
+            const content = element.nextElementSibling;
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+            } else {
+                content.style.display = 'none';
+            }
+        }
+
+        // Автоматический запуск при загрузке страницы
+        window.onload = () => {
+            runAllTests();
+        };
+    </script>
+</body>
+
+</html>
