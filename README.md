@@ -39,7 +39,7 @@ npm --version
 ### Шаг 3: Клонирование репозитория
 
 ```cmd
-git clone https://github.com/your-repository/service-center.git
+git clone https://github.com/exg0n/service-center
 cd service-center
 ```
 
